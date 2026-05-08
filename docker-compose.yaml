@@ -1,0 +1,94 @@
+services:
+  source_postgres:
+    image: postgres:15
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: source_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./elt/source_db_init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - elt_network
+
+  destination_postgres:
+    image: postgres:15
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: destination_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+    networks:
+      - elt_network
+
+  airflow_postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      retries: 5
+    networks:
+      - elt_network
+
+  init-airflow:
+    image: apache/airflow:2.8.1
+    depends_on:
+      airflow_postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow_postgres/airflow
+    command: >
+      bash -c "airflow db migrate && airflow users create --username airflow --password password  --firstname Admin  --lastname User --role Admin --email admin@example.com"
+    networks:
+      - elt_network
+
+  webserver:
+    build: ./elt/airflow
+    depends_on:
+      init-airflow:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./elt/airflow/dags:/opt/airflow/dags
+      - ./elt:/opt/airflow/elt
+      - C:\Users\proga\Documents\elt\Custom_postgres:/opt/dbt
+      - ~/.dbt:/home/airflow/.dbt
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow_postgres/airflow
+    command: webserver
+    networks:
+      - elt_network
+
+  scheduler:
+    build: ./elt/airflow
+    depends_on:
+      init-airflow:
+        condition: service_completed_successfully
+    volumes:
+      - ./elt/airflow/dags:/opt/airflow/dags
+      - ./elt:/opt/airflow/elt
+      - C:\Users\proga\Documents\elt\Custom_postgres:/opt/dbt
+      - ~/.dbt:/home/airflow/.dbt
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow_postgres/airflow
+    command: scheduler
+    networks:
+      - elt_network
+
+networks:
+  elt_network:
+    driver: bridge
+
