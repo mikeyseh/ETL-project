@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false  # Désactive la sécurité pour simplifier la configuration de base
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # Ajuste la mémoire Java si nécessaire
+    ports:
+      - "9200:9200"  # Port pour accéder à l'API Elasticsearch
+    volumes:
+      - es_data:/usr/share/elasticsearch/data  # Volume pour les données persistantes
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200  # Adresse de connexion à Elasticsearch
+    ports:
+      - "5601:5601"  # Port pour accéder à Kibana
+    depends_on:
+      - elasticsearch
+
+volumes:
+  es_data:
+    driver: local

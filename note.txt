@@ -1,0 +1,10 @@
+
+se connecter à mongo en tant que admin : mongosh -u mongoadmin -p  mongoadmin --authenticationDatabase admin
+
+db.createUser({
+    user: "josue1",
+    pwd: "josueadmin",
+    roles: [
+        { role: "readWrite", db: "to_minio" }
+    ]
+})

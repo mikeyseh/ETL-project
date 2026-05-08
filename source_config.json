@@ -1,0 +1,8 @@
+{
+  "host": "airbyte-etl-postgres-to-s3-minio-with-slack-alerts-postgres_dwh-1",
+  "port": 5432,
+  "database": "source_db",
+  "username": "postgres",
+  "password": "secret",
+  "ssl": false
+}
