@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 venv/
 .env
+airbyte/.env
 airflow/logs/
 airflow/cfg/
 airflow/airflow.db
@@ -13,5 +14,7 @@ dbt/logs/
 dbt/.user.yml
 postgres-data/
 minio-data/
+airbyte/notices/
+airbyte/*.log
 .DS_Store
 Thumbs.db
