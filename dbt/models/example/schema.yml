@@ -1,0 +1,98 @@
+version: 2
+
+
+models:
+  - name: actors
+    description: "Base table for actors."
+    columns:
+      - name: actor_id
+        description: "Unique ID for each actor."
+        tests:
+          - not_null
+          - unique
+      - name: actor_name
+        description: "Name of the actor."
+        tests:
+          - not_null
+
+  - name: films
+    description: "Base table for films."
+    columns:
+      - name: film_id
+        description: "Unique ID for each film."
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: "Film title."
+        tests:
+          - not_null
+      - name: release_date
+        description: "Film release date."
+        tests:
+          - not_null
+      - name: price
+        description: "Film price."
+        tests:
+          - not_null
+      - name: rating
+        description: "Film rating."
+        tests:
+          - not_null
+      - name: user_rating
+        description: "User rating for the film."
+        tests:
+          - not_null
+
+  - name: film_actors
+    description: "Mapping of films to actors."
+    columns:
+      - name: film_id
+        description: "ID of the film."
+        tests:
+          - not_null
+      - name: actor_id
+        description: "ID of the actor."
+        tests:
+          - not_null
+
+  - name: film_ratings
+    description: "Aggregated film ratings with actor info."
+    columns:
+      - name: film_id
+        description: "ID of the film."
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: "Title of the film."
+        tests:
+          - not_null
+      - name: release_date
+        description: "Release date of the film."
+        tests:
+          - not_null
+      - name: price
+        description: "Price of the film."
+        tests:
+          - not_null
+      - name: rating
+        description: "Rating of the film."
+        tests:
+          - not_null
+      - name: user_rating
+        description: "User rating of the film."
+        tests:
+          - not_null
+      - name: rating_category
+        description: "Categorical rating based on user_rating."
+      - name: actors
+        description: "Comma-separated list of actors in the film."
+      - name: actor_count
+        description: "Number of actors in the film."
+        tests:
+          - not_null
+      - name: avg_actor_rating
+        description: "Average rating of actors in the film."
+        tests:
+          - not_null
